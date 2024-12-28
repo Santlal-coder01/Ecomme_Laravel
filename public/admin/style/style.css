@@ -1,0 +1,34 @@
+    /* Set max-width for Permissions column and handle overflow */
+    .data-table td:nth-child(3) {
+        max-width: 200px; /* Adjust width as needed */
+        white-space: nowrap; /* Prevent wrapping */
+        overflow: hidden; /* Hide overflow */
+        text-overflow: ellipsis; /* Add ellipsis for overflowed content */
+    }
+
+    .error {
+        color: red;
+    }
+    .checkbox-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* Space between items */
+}
+
+.checkbox-item {
+    flex: 1 1 calc(25% - 15px); /* 4 items per row with gap adjustment */
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 8px; /* Space between checkbox and label */
+}
+
+.checkbox-container label {
+    color: black;
+}
+
+.edit{
+    margin-left: 5px;
+}
