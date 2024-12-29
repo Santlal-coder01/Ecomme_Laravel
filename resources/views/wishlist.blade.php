@@ -51,27 +51,35 @@
                             </td>
                         </tr>
                     @else
-                        @foreach ($wishlist as $item)
-                        <tr>
-                            <td class="align-middle">
-                                <img src="{{ $item->product->getFirstMediaUrl('thumb_img') }}" alt="" style="width: 50px;">
-                                {{ $item->product->name }}
-                            </td>
-                            <td class="align-middle">₹{{ $item->product->price }}</td>
-                            <td class="align-middle">
-                                <form method="POST" action="{{ route('wishlist.remove', $item->id) }}">
-                                    @csrf
-                                    <button class="btn btn-sm btn-primary"><i class="fa fa-times"></i></button>
-                                </form>
-                            </td>
-                            <td>
-                                <form method="POST" class="custom-margin" action="{{ route('addCart', $item->product->id) }}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-success hh">Add to Cart</button>
-                                </form>
-                            </td>
-                        </tr>
-                        @endforeach
+                    @foreach ($wishlist as $item)
+                    <tr>
+                        <td class="align-middle">
+                            <img src="{{ $item->product->getFirstMediaUrl('thumb_img') }}" alt="" style="width: 50px;">
+                            {{ $item->product->name }}
+                        </td>
+                        <td class="align-middle">
+                            @if($item->product->special_price)
+                                <span style="color: red; font-weight: bold;">₹{{ $item->product->special_price }}</span>
+                                <br>
+                                <span style="text-decoration: line-through;">₹{{ $item->product->price }}</span>
+                            @else
+                                ₹{{ $item->product->price }}
+                            @endif
+                        </td>
+                        <td class="align-middle">
+                            <form method="POST" action="{{ route('wishlist.remove', $item->id) }}">
+                                @csrf
+                                <button class="btn btn-sm btn-primary"><i class="fa fa-times"></i></button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="POST" class="custom-margin" action="{{ route('addCart', $item->product->id) }}">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-success hh">Add to Cart</button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach                  
                     @endif
                 </tbody>
                 

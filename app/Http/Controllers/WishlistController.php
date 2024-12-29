@@ -109,6 +109,7 @@ class WishlistController extends Controller
 
     public function addToCartToWishlist(Request $request, $id)
     {
+        // dd($request->all());
         
         if (!Auth::check()) {
             return redirect()->back()->with('error', 'You need to be logged in to add products to the cart.');
@@ -132,17 +133,29 @@ class WishlistController extends Controller
             $existingQuoteItem->save();
         } else {
             $customOptions = $request->input('attributes', []);
-    
+            $specialPrice = null;
+
+           
+            if ($product->special_price && 
+                now()->between($product->special_price_from, $product->special_price_to)) {
+                $specialPrice = $product->special_price;
+            }
+            
+            
+            $price = $specialPrice ? $specialPrice : $product->price;
+            
             $quoteItem = new QuoteItem([
                 'quote_id' => $quote->id,
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'sku' => $product->sku,
-                'price' => $product->price,
+                'price' => $price, 
                 'qty' => 1, 
-                'row_total' => $product->price * 1, 
+                'row_total' => $price * 1, 
                 'custom_option' => json_encode($customOptions), 
             ]);
+            
+            
             $quoteItem->save();
         }
     
