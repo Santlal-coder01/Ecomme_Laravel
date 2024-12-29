@@ -147,8 +147,9 @@ class OrderController extends Controller
         $ordersend = Order::with(['items', 'addresses'])->where('id', $order->id)->first();
         // dd($ordersend);
         try {
-        Mail::to('santlalpuri9@gmail.com')->send(new OrderMail($ordersend));
+       $request = Mail::to('santlalpuri9@gmail.com')->send(new OrderMail($ordersend));
             // echo "Mail sent successfully.";
+            // dd($request);
         } catch (\Exception $e) {
             \Log::error('Mail sending failed: ' . $e->getMessage());
 

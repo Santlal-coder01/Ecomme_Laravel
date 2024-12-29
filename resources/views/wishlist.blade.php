@@ -58,13 +58,23 @@
                             {{ $item->product->name }}
                         </td>
                         <td class="align-middle">
-                            @if($item->product->special_price)
-                                <span style="color: red; font-weight: bold;">₹{{ $item->product->special_price }}</span>
-                                <br>
-                                <span style="text-decoration: line-through;">₹{{ $item->product->price }}</span>
-                            @else
-                                ₹{{ $item->product->price }}
-                            @endif
+                            @php
+                            $currentDate = now(); // Current date ko fetch karna
+                            $specialPriceStart = $item->product->special_price_from ?? null;
+                            $specialPriceEnd = $item->product->special_price_to ?? null;
+                        @endphp
+                        
+                        @if($item->product->special_price && 
+                            $specialPriceStart && 
+                            $specialPriceEnd && 
+                            $currentDate->between($specialPriceStart, $specialPriceEnd))
+                            <span style="color: red; font-weight: bold;">₹{{ $item->product->special_price }}</span>
+                            <br>
+                            <span style="text-decoration: line-through;">₹{{ $item->product->price }}</span>
+                        @else
+                            ₹{{ $item->product->price }}
+                        @endif
+                        
                         </td>
                         <td class="align-middle">
                             <form method="POST" action="{{ route('wishlist.remove', $item->id) }}">

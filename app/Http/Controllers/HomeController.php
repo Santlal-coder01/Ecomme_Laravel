@@ -7,6 +7,7 @@ use App\Models\admin\Enquiry;
 use App\Models\admin\Slider;
 use App\Models\admin\Category;
 use App\Models\e_store\Wishlist;
+use App\Models\e_store\Quote;
 use App\Models\admin\Product;
 use App\Mail\WelcomeMail;
 use Illuminate\Support\Facades\Mail;
@@ -176,7 +177,13 @@ class HomeController extends Controller
          {
             // dd($req->all());
             $req->session()->put('user',$user);
+
             //  dd($dd);
+            
+            // $cartId = session('cart_id');
+            // $quote = Quote::where('cart_id',$cartId)->first();
+            // dd($quote);
+            
              return redirect()->route('homepage')->with('success','You are login');
          }
          else
