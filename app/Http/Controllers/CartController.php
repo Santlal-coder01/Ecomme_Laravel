@@ -147,8 +147,8 @@ class CartController extends Controller
         }
     
         // Fetch the user's quote
-        $quote = Quote::where('cart_id', $cartId)->first();
-        // dd($quotes);
+        $quote = Quote::where('cart_id', $cartId)->where('user_id',$userId)->first();
+        // dd($quote);
         
     
         if (!$quote) {
@@ -208,6 +208,7 @@ class CartController extends Controller
         // dd($id);
         // Get the logged-in user ID
         $userId = auth()->id();
+        // dd($userId);
     
         // Fetch the user's quote (cart)
         $quote = Quote::where('user_id', $userId)->first();

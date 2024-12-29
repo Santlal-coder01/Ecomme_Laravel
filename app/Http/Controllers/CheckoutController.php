@@ -15,12 +15,13 @@ class CheckoutController extends Controller
     {
         // dd($req->all());
         $cartId = session('cart_id');
+        // dd($cartId);
         if (Auth::check()) {
             $userid = Auth::user()->id;
             // dd($userid);
-            $cart = Quote::where('user_id', $userid)->where('cart_id',$cartId)->first();
-            // dd($cart2);
-            $quoteitem = QuoteItem::where('quote_id',$cart->id)->get();
+            $cart = Quote::where('cart_id',$cartId)->first();
+            // dd($cart);
+            $quoteitem = QuoteItem::where('quote_id',$cartId)->get();
             // dd($quoteitem);
 
             if ($quoteitem==null) {
