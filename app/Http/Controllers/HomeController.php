@@ -170,29 +170,25 @@ class HomeController extends Controller
     }
     public function loginFrontPost(Request $req)
     {
-        // dd($req->all());
-
-         $user= User::where(['email'=>$req->email])->first();
-         if(Auth::attempt($req->only('email', 'password')))
-         {
-            // dd($req->all());
-            $req->session()->put('user',$user);
-
-            //  dd($dd);
-            
-            // $cartId = session('cart_id');
-            // $quote = Quote::where('cart_id',$cartId)->first();
-            // dd($quote);
-            
-             return redirect()->route('homepage')->with('success','You are login');
-         }
-         else
-         {
-            return "username or password is not correct";
-            // dd('fghjkl');
-
-         }
+        $req->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+    
+        if (Auth::attempt($req->only('email', 'password'))) {
+            $user = Auth::user(); // Get logged-in user
+            $req->session()->put('user', $user); // Save user in session
+    
+            // Debug session cart_id
+            logger('Cart ID in session: ' . session('cart_id'));
+    
+            // Redirect to homepage after successful login
+            return redirect()->route('homepage')->with('success', 'You are logged in!');
+        }
+    
+        return back()->with('error', 'Invalid email or password.');
     }
+    
 
     public function ragisterFront(){
       return view('registerFront');

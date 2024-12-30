@@ -18,12 +18,14 @@ class CartController extends Controller
     {
         // dd($request->all());
         // dd(session()->all());
+        // dd(session()->all());
    
         $userId = Auth::user()->id ?? null;
         // dd($userId);
     
        
         $cartId = session('cart_id');
+
         // dd($cartId);
         if (!$cartId) {
            
@@ -140,6 +142,7 @@ class CartController extends Controller
         $cartId = session('cart_id');
         // dd($cartId);
         $userId = Auth::id();
+        // dd($userId);
     
         if (!$userId) {
             // Redirect to login if the user is not logged in
