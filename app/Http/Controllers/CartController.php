@@ -16,59 +16,48 @@ class CartController extends Controller
 {
     public function addToCart(Request $request)
     {
-        // dd($request->all());
-        // dd(session()->all());
-        // dd(session()->all());
-   
-        $userId = Auth::user()->id ?? null;
-        // dd($userId);
+        $userId = Auth::user()->id ?? null; 
+        $cartId = session('cart_id'); 
     
        
-        $cartId = session('cart_id');
-
-        // dd($cartId);
         if (!$cartId) {
-           
+            // dd('hello');
             $cartId = Str::random(20);
             session(['cart_id' => $cartId]);
         }
     
-        // Fetch or create the quote for the user or cart session
+    
         $quote = Quote::firstOrCreate(
-            ['cart_id' => $cartId, 'user_id' => $userId],
+            ['cart_id' => $cartId],
             [
                 'cart_id' => $cartId,
-                'user_id' => $userId,
+                'user_id' => $userId, 
             ]
         );
-
-        // dd($quote);
     
-     
+        // Find the product
         $product = Product::findOrFail($request->input('product_id'));
-        // dd($product);
-      
     
-       
-        $quoteItem = QuoteItem::where('quote_id', $quote->id)->where('product_id',$product->id)->first();
-        // dd($quoteItem);
+        // Check if the product already exists in the cart
+        $quoteItem = QuoteItem::where('quote_id', $quote->id)
+            ->where('product_id', $product->id)
+            ->first();
     
         if ($quoteItem) {
-            
+            // Update the quantity and row total if the product exists
             $quoteItem->qty += $request->input('quantity');
             $quoteItem->row_total = $quoteItem->price * $quoteItem->qty;
             $quoteItem->save();
     
             session()->flash('message', 'Product quantity updated in the cart.');
         } else {
-            
+            // Add a new item to the cart if it doesn't exist
             $attributes = $request->input('attributes', []);
             $price = $product->special_price && now()->between($product->special_price_from, $product->special_price_to)
-            ? $product->special_price
-            : $product->price;
-            // dd($price);  
-
-            $dd = QuoteItem::create([
+                ? $product->special_price
+                : $product->price;
+    
+            QuoteItem::create([
                 'quote_id' => $quote->id,
                 'product_id' => $product->id,
                 'name' => $product->name,
@@ -78,32 +67,23 @@ class CartController extends Controller
                 'row_total' => $price * $request->input('quantity'),
                 'custom_option' => json_encode($attributes),
             ]);
-            // dd($dd);
+    
             session()->flash('message', 'Product added to cart!');
         }
-
-        $quoteItems2 = QuoteItem::where('quote_id', $quote->id)->get();
-        // dd($quoteItems2);
-                 $subtotal  = 0;
-                 foreach ($quoteItems2 as $key => $value) {
-                     $subtotal += $value->row_total;
-                 }
-
-                //  dd($subtotal);
-
-                 $total = $subtotal  -  $quote->coupon_discount??null;
-     
-                     $dd = $quote->update([
-                         'subtotal' => $subtotal,
-                         'total' => $total,
-                     ]);
-                    //  dd($dd);
-     
-         
     
-      
+        // Recalculate quote totals
+        $quoteItems = QuoteItem::where('quote_id', $quote->id)->get();
+        $subtotal = $quoteItems->sum('row_total');
+        $total = $subtotal - ($quote->coupon_discount ?? 0);
+    
+        $quote->update([
+            'subtotal' => $subtotal,
+            'total' => $total,
+        ]);
+    
         return redirect()->back();
     }
+    
     
     
 
@@ -138,49 +118,51 @@ class CartController extends Controller
 
     public function showCart()
     {
-        // Get the logged-in user's ID
-        $cartId = session('cart_id');
-        // dd($cartId);
+        
         $userId = Auth::id();
-        // dd($userId);
     
         if (!$userId) {
-            // Redirect to login if the user is not logged in
+      
             return redirect()->route('loginFront')->with('message', 'Please login to view your cart.');
         }
     
-        // Fetch the user's quote
-        $quote = Quote::where('cart_id', $cartId)->where('user_id',$userId)->first();
-        // dd($quote);
-        
+     
+        $cartId = Quote::where('user_id', $userId)->first();
     
-        if (!$quote) {
-            // If no quote exists for the user, create one with a random cart_id
-            $quote = Quote::create([
-                'user_id' => $userId,
-                'cart_id' => Str::random(20), // Generate a unique cart_id
+        
+        if (!$cartId) {
+            return view('cart', [
+                'quote' => null,
+                'quotes' => [],
+                'message' => 'Your cart is empty!',
+                'newSubtotal' => 0,
             ]);
         }
-        // dd($quote);
     
-        // If the existing quote does not have a cart_id, generate one
-        if (is_null($quote->cart_id)) {
-            $quote->cart_id = (string) Str::uuid();
-            $quote->save();
-        }
+      
+        $quote = Quote::where('cart_id', $cartId->cart_id)->where('user_id', $userId)->first();
     
-        // Fetch all quote items associated with the user's quote ID
+        
+        // if (!$quote) {
+        //     $quote = Quote::create([
+        //         'user_id' => $userId,
+        //         'cart_id' => Str::random(20), 
+        //     ]);
+        // }
+    
+       
+        // if (is_null($quote->cart_id)) {
+        //     $quote->cart_id = (string) Str::uuid();
+        //     $quote->save();
+        // }
+    
+       
         $quoteItems = QuoteItem::where('quote_id', $quote->id)
-        ->with('product') // Eager load the product relationship
-        ->get();
-            // dd($quoteItems);
-           
-           
-
-            
+            ->with('product') 
+            ->get();
     
+       
         if ($quoteItems->isEmpty()) {
-            // If no items are found, show an empty cart
             return view('cart', [
                 'quote' => $quote,
                 'quotes' => [],
@@ -189,17 +171,18 @@ class CartController extends Controller
             ]);
         }
     
-        // Calculate the subtotal of the items
+       
         $newSubtotal = $quoteItems->sum('row_total');
     
-        // Pass the data to the view
+        
         return view('cart', [
             'quote' => $quote,
             'quotes' => $quoteItems,
-            'message' => null, // No message for non-empty cart
+            'message' => null, 
             'newSubtotal' => $newSubtotal,
         ]);
     }
+    
     
     
     

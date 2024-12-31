@@ -22,6 +22,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\EmailController;
+// use App\Http\Middleware\CheckAdmin;
 
 
 //HomeController Route...
@@ -93,28 +94,30 @@ Route::group(['middlewear' => ['auth','role:admin'],'prefix' => ''],function() {
 
 //LoginController Route...
 
-Route::get('login',[LoginController::class,'login'])->name('login');
-Route::post('admin/post',[LoginController::class,'loginPost'])->name('login.post');
+    Route::get('login',[LoginController::class,'login'])->name('login');
+    Route::post('admin/post',[LoginController::class,'loginPost'])->name('login.post');
 
-Route::get('updateStatus/{id}', [EnquiryController::class, 'updateStatus'])->name('updateStatus');
+    Route::get('updateStatus/{id}', [EnquiryController::class, 'updateStatus'])->name('updateStatus');
 
-Route::group(['middleware' => 'auth','prefix' => 'admin'],function(){
-    Route::resource('page',PageController::class);
-    Route::resource('slider',SliderController::class);
-    Route::resource('block',BlockController::class);
-    Route::resource('product',ProductController::class);
-    Route::resource('attribute',AttributeController::class);
-    Route::resource('attribute-values',AttributeValueController::class);
-    Route::resource('category',CategoryController::class);
-    Route::resource('user',UserController::class);
-    Route::get('logout',[LoginController::class,'logout'])->name('logout');
-    Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard');
-    Route::resource('permission',PermissionController::class);
-    Route::resource('role',RoleController::class);
-    Route::resource('coupon',CouponController::class);
-    Route::resource('enquiry',EnquiryController::class);
-    // Route::post('action/post',[ProductController::class,'action'])->name('action.post');
+ 
 
-});
+    Route::group(['middleware' => ['auth'], 'prefix' => 'admin'], function () {
+        Route::resource('page', PageController::class);
+        Route::resource('slider', SliderController::class);
+        Route::resource('block', BlockController::class);
+        Route::resource('product', ProductController::class);
+        Route::resource('attribute', AttributeController::class);
+        Route::resource('attribute-values', AttributeValueController::class);
+        Route::resource('category', CategoryController::class);
+        Route::resource('user', UserController::class);
+        Route::get('logout', [LoginController::class, 'logout'])->name('logout');
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::resource('permission', PermissionController::class);
+        Route::resource('role', RoleController::class);
+        Route::resource('coupon', CouponController::class);
+        Route::resource('enquiry', EnquiryController::class);
+        // Route::post('action/post', [ProductController::class, 'action'])->name('action.post');
+    });
+    
 
 
