@@ -2,13 +2,12 @@
   <div class="pull-right hidden-xs">
     <b>Version</b> 2.0
   </div>
-  <strong>Copyright &copy; 2014-2015 <a href="http://almsaeedstudio.com">Almsaeed Studio</a>.</strong> All rights
-  reserved.
+  <strong>Copyright &copy; 2014-2015 <a href="http://almsaeedstudio.com">Almsaeed Studio</a>.</strong>By Santu Coader
 </footer>
 </div><!-- ./wrapper -->
 
 <!-- jQuery 2.1.3 -->
-<script src="admin/plugins/jQuery/jQuery-2.1.3.min.js'"></script>
+{{-- <script src="admin/plugins/jQuery/jQuery-2.1.3.min.js'"></script> --}}
 <!-- jQuery UI 1.11.2 -->
 <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.min.js" type="text/javascript"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
@@ -41,7 +40,7 @@
 <!-- FastClick -->
 <script src="{{asset('admin/plugins/fastclick/fastclick.min.js')}}"></script>
 <!-- AdminLTE App -->
-<script src="{{asset('admin/dist/js/app.min.js" type="text/javascript')}}"></script>
+{{-- <script src="{{asset('admin/dist/js/app.min.js" type="text/javascript')}}"></script> --}}
 
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="{{asset('admin/dist/js/pages/dashboard.js')}}" type="text/javascript"></script>

@@ -9,7 +9,7 @@
       <div class="pull-left info">
         <p>{{Auth::user()->name}}</p>
 
-        <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+        <a href="#"><i class="fa fa-circle text-success"></i>Online</a>
       </div>
     </div>
     <!-- search form -->
@@ -72,9 +72,15 @@
         </a>
       </li>
       @endcan
-      <li class="treeview">
+      <li class="treeview {{ Route::currentRouteName() == 'enquiry.index' ? 'active' : '' }}">
         <a href="{{route('enquiry.index')}}">
           <i class="fa fa-share"></i> <span>Enquiries</span>
+          {{-- <i class="fa fa-angle-left pull-right"></i> --}}
+        </a>
+      </li>
+      <li class="treeview {{ Route::currentRouteName() == 'order_list' ? 'active' : '' }}">
+        <a href="{{route('order_list')}}">
+          <i class="fa fa-truck"></i> <span>Orders Manage</span>
           {{-- <i class="fa fa-angle-left pull-right"></i> --}}
         </a>
       </li>

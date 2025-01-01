@@ -22,8 +22,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\EmailController;
+use App\Http\Controllers\admin\ManageOrderController;
 // use App\Http\Middleware\CheckAdmin;
 
+Route::get('/admin', function() {
+    return redirect()->route('/');
+});
 
 //HomeController Route...
 Route::get('/',[HomeController::class,'index'])->name('/');
@@ -56,7 +60,7 @@ Route::post('/cart/update/{item}', [CartController::class, 'update'])->name('car
 
 
 // Login to HomeController
-Route::get('loginFront',[HomeController::class,'loginFront'])->name('loginFront');
+Route::get('login',[HomeController::class,'loginFront'])->name('loginFront');
 Route::post('loginFront/post',[HomeController::class,'loginFrontPost'])->name('loginFrontPost');
 Route::get('ragisterFront',[HomeController::class,'ragisterFront'])->name('ragisterFront');
 Route::post('register',[HomeController::class,'register']);
@@ -66,7 +70,7 @@ Route::post('register',[HomeController::class,'register']);
 
 
 
-Route::group(['middlewear' => ['auth','role:admin'],'prefix' => ''],function() {
+Route::group(['middleware' => ['auth','check.user'],'prefix' => ''],function() {
     Route::get('/profile', [ProfileController::class, 'show_profile'])->name('show_profile');
     Route::get('homepage', [ProfileController::class, 'homepage'])->name('homepage');
     Route::post('/profile/update', [ProfileController::class, 'updateDeatails'])->name('update_profile');
@@ -94,14 +98,14 @@ Route::group(['middlewear' => ['auth','role:admin'],'prefix' => ''],function() {
 
 //LoginController Route...
 
-    Route::get('login',[LoginController::class,'login'])->name('login');
-    Route::post('admin/post',[LoginController::class,'loginPost'])->name('login.post');
+    Route::get('admin/login',[LoginController::class,'login'])->name('login')->middleware('check.admin');
+    Route::post('admin/post',[LoginController::class,'loginPost'])->name('login.post')->middleware('check.admin');
 
     Route::get('updateStatus/{id}', [EnquiryController::class, 'updateStatus'])->name('updateStatus');
 
  
 
-    Route::group(['middleware' => ['auth'], 'prefix' => 'admin'], function () {
+    Route::group(['middleware' => ['auth','check.admin'], 'prefix' => 'admin'], function () {
         Route::resource('page', PageController::class);
         Route::resource('slider', SliderController::class);
         Route::resource('block', BlockController::class);
@@ -116,6 +120,9 @@ Route::group(['middlewear' => ['auth','role:admin'],'prefix' => ''],function() {
         Route::resource('role', RoleController::class);
         Route::resource('coupon', CouponController::class);
         Route::resource('enquiry', EnquiryController::class);
+        Route::get('manage_order', [ManageOrderController::class, 'order_list'])->name('order_list');
+        Route::get('order/show/{id}', [ManageOrderController::class, 'order_show'])->name('order.show');
+        Route::get('pdf/invoice/{id}', [ManageOrderController::class, 'pdf_invoice'])->name('pdf.invoice');
         // Route::post('action/post', [ProductController::class, 'action'])->name('action.post');
     });
     

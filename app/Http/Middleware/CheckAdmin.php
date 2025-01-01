@@ -17,12 +17,15 @@ class CheckAdmin
 
      public function handle(Request $request, Closure $next): Response
      {
+        
+         if (Auth::check() && Auth::user()->is_admin == 1) {
 
-         if (Auth::user()->is_admin == 1) {
-             return redirect()->route('admin.dashboard');
-         }else{
-             return redirect()->route('/');
+             return $next($request); 
+             
          }
-         return $next($request);
+     
+        
+         return redirect()->route('/'); 
      }
+     
 }

@@ -209,7 +209,7 @@ class HomeController extends Controller
         $products = Product::where('status', 1)->get();
 
         try {
-            $request = Mail::to($user->email)->send(new welcomeMail($message, $subject, $products));
+            $request = Mail::to($user->email)->send(new WelcomeMail($message, $subject, $products));
                 // echo "Mail sent successfully.";
             } catch (\Exception $e) {
                 \Log::error('Mail sending failed: ' . $e->getMessage());

@@ -14,11 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->group('admin', [
-            // \App\Http\Middleware\CheckAdmin::class,
-        ]);
-
-        $middleware->group('api', [
+        $middleware->alias([
+            'check.admin' => \App\Http\Middleware\CheckAdmin::class,
+            'check.user' => \App\Http\Middleware\CheckUser::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

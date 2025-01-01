@@ -19,39 +19,42 @@ class CartController extends Controller
         $userId = Auth::user()->id ?? null; 
         $cartId = session('cart_id'); 
     
-       
-        if (!$cartId) {
-            // dd('hello');
-            $cartId = Str::random(20);
+        if ($userId) {
+            
+            $quote = Quote::where('user_id', $userId)->first();
+            if ($quote) {
+                $cartId = $quote->cart_id;
+                session(['cart_id' => $cartId]); 
+            } else {
+                $cartId = Str::uuid(20)->toString();
+                session(['cart_id' => $cartId]);
+            }
+        } elseif (!$cartId) {
+            $cartId = Str::uuid(20)->toString();
             session(['cart_id' => $cartId]);
         }
-    
     
         $quote = Quote::firstOrCreate(
             ['cart_id' => $cartId],
             [
                 'cart_id' => $cartId,
-                'user_id' => $userId, 
+                'user_id' => $userId,
             ]
         );
     
-        // Find the product
         $product = Product::findOrFail($request->input('product_id'));
     
-        // Check if the product already exists in the cart
         $quoteItem = QuoteItem::where('quote_id', $quote->id)
             ->where('product_id', $product->id)
             ->first();
     
         if ($quoteItem) {
-            // Update the quantity and row total if the product exists
             $quoteItem->qty += $request->input('quantity');
             $quoteItem->row_total = $quoteItem->price * $quoteItem->qty;
             $quoteItem->save();
     
             session()->flash('message', 'Product quantity updated in the cart.');
         } else {
-            // Add a new item to the cart if it doesn't exist
             $attributes = $request->input('attributes', []);
             $price = $product->special_price && now()->between($product->special_price_from, $product->special_price_to)
                 ? $product->special_price
@@ -71,7 +74,6 @@ class CartController extends Controller
             session()->flash('message', 'Product added to cart!');
         }
     
-        // Recalculate quote totals
         $quoteItems = QuoteItem::where('quote_id', $quote->id)->get();
         $subtotal = $quoteItems->sum('row_total');
         $total = $subtotal - ($quote->coupon_discount ?? 0);
@@ -83,6 +85,7 @@ class CartController extends Controller
     
         return redirect()->back();
     }
+    
     
     
     
