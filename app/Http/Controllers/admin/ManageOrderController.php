@@ -12,6 +12,7 @@ class ManageOrderController extends Controller
 {
     public function order_list(Request $request)
     {
+        // dd($request->all());
         try {
             // Fetch paginated data (10 records per page)
             $orders = Order::paginate(10);
@@ -31,9 +32,12 @@ class ManageOrderController extends Controller
     }
 
     public function pdf_invoice($id){
+
         $order = Order::where('id',$id)->with(['items'])->first();
+        // return View('invoice',compact('order'));
         $pdf = PDF::loadView('invoice',compact('order'));
         return $pdf->download('invoice'.$order->id.'.pdf'); 
+        
     }
 
 

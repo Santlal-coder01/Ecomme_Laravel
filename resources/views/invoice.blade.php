@@ -65,7 +65,9 @@
     border: 1px solid #ddd;
     border-radius: 5px;
 }
-
+body{
+    font-family: 'DejaVu Sans', Arial, sans-serif;
+}
     </style>
 </head>
 
@@ -157,13 +159,13 @@
                                                 @forelse ($order->items as $item)
                                                     <tr>
                                                         <td style="border: 1px solid #ddd; padding: 8px;">
-                                                            <img src="{{ $item->product->getFirstMediaUrl('thumb_img') }}" alt="" width="50px" height="50px">
+                                                            <img src="{{$item->product->getFirstMediaUrl('thumb_img')}}" alt="Product Image" width="50" height="50">
                                                         </td>   
                                                         <td style="border: 1px solid #ddd; padding: 8px;">{{ $item->name }}</td>
                                                         <td style="border: 1px solid #ddd; padding: 8px;">{{ $item->sku }}</td>
-                                                        <td style="border: 1px solid #ddd; padding: 8px;">{{ number_format($item->price, 2) }}</td>
+                                                        <td style="border: 1px solid #ddd; padding: 8px;">₹{{ number_format($item->price, 2) }}</td>
                                                         <td style="border: 1px solid #ddd; padding: 8px;">{{ $item->qty }}</td>
-                                                        <td style="border: 1px solid #ddd; padding: 8px;">{{ number_format($item->row_total, 2) }}</td>
+                                                        <td style="border: 1px solid #ddd; padding: 8px;">₹{{ number_format($item->row_total, 2) }}</td>
                                                     </tr>
                                                 @empty
                                                     <tr>
@@ -189,7 +191,7 @@
                                             <tr>
                                                 <th>SubTotal:</th>
                                                 {{-- @dd($order->sub_total) --}}
-                                                <td>{{ number_format($order->sub_total, 2) }}</td>
+                                                <td>₹{{ number_format($order->sub_total, 2) }}</td>
                                             </tr>
                                             <tr>
                                                 <th>Coupon:</th>
@@ -197,15 +199,15 @@
                                             </tr>
                                             <tr>
                                                 <th>Coupon Discount:</th>
-                                                <td>-{{ number_format($order->coupon_discount, 2) }}</td>
+                                                <td>-₹{{ number_format($order->coupon_discount, 2) }}</td>
                                             </tr>
                                             <tr>
                                                 <th>Shipping Cost:</th>
-                                                <td>+{{ number_format($order->shipping_cost, 2) }}</td>
+                                                <td>+₹{{ number_format($order->shipping_cost, 2) }}</td>
                                             </tr>
                                             <tr>
                                                 <th>Total:</th>
-                                                <td>{{ number_format($order->total, 2) }}</td>
+                                                <td>₹{{ number_format($order->total, 2) }}</td>
                                             </tr>
                                         </tbody>
                                     </table>

@@ -11,6 +11,7 @@ use App\Models\e_store\QuoteItem;
 use App\Models\admin\Product;
 use App\Models\admin\Coupon;
 use Carbon\Carbon;
+use DB;
 
 class CartController extends Controller
 {
@@ -20,48 +21,82 @@ class CartController extends Controller
         $cartId = session('cart_id'); 
     
         if ($userId) {
-            
-            $quote = Quote::where('user_id', $userId)->first();
-            if ($quote) {
-                $cartId = $quote->cart_id;
-                session(['cart_id' => $cartId]); 
+            $userQuote = Quote::where('user_id', $userId)->first();
+    
+            if ($userQuote) {
+               
+                $exitId = $userQuote->cart_id;
+                // dd($exitId);
+    
+                if ($cartId && $cartId !== $exitId) {
+                   
+                    $guestQuote = Quote::where('cart_id', $cartId)->first();
+    
+                    if ($guestQuote) {
+                        $guestCartItems = QuoteItem::where('quote_id', $guestQuote->id)->get();
+    
+                        foreach ($guestCartItems as $item) {
+                            QuoteItem::updateOrCreate(
+                                [
+                                    'quote_id' => $userQuote->id,
+                                    'product_id' => $item->product_id,
+                                ],
+                                [
+                                    'qty' => DB::raw('qty + ' . $item->qty),
+                                    'row_total' => DB::raw('row_total + ' . $item->row_total),
+                                ]
+                            );
+                            $item->delete();
+                        }
+    
+                      
+                        $guestQuote->delete();
+                    }
+                }
+    
+             
+                session(['cart_id' => $exitId]);
+                $cartId = $exitId;
             } else {
-                $cartId = Str::uuid(20)->toString();
+               
+                $cartId = Str::uuid()->toString();
                 session(['cart_id' => $cartId]);
+    
+                $userQuote = Quote::create([
+                    'cart_id' => $cartId,
+                    'user_id' => $userId,
+                ]);
             }
         } elseif (!$cartId) {
-            $cartId = Str::uuid(20)->toString();
+           
+            $cartId = Str::uuid()->toString();
             session(['cart_id' => $cartId]);
+    
+            $userQuote = Quote::firstOrCreate(['cart_id' => $cartId]);
         }
     
-        $quote = Quote::firstOrCreate(
-            ['cart_id' => $cartId],
-            [
-                'cart_id' => $cartId,
-                'user_id' => $userId,
-            ]
-        );
-    
+      
         $product = Product::findOrFail($request->input('product_id'));
-    
-        $quoteItem = QuoteItem::where('quote_id', $quote->id)
+        $quoteItem = QuoteItem::where('quote_id', $userQuote->id)
             ->where('product_id', $product->id)
             ->first();
     
         if ($quoteItem) {
+            
             $quoteItem->qty += $request->input('quantity');
             $quoteItem->row_total = $quoteItem->price * $quoteItem->qty;
             $quoteItem->save();
     
             session()->flash('message', 'Product quantity updated in the cart.');
         } else {
+            
             $attributes = $request->input('attributes', []);
             $price = $product->special_price && now()->between($product->special_price_from, $product->special_price_to)
                 ? $product->special_price
                 : $product->price;
     
             QuoteItem::create([
-                'quote_id' => $quote->id,
+                'quote_id' => $userQuote->id,
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'sku' => $product->sku,
@@ -74,17 +109,20 @@ class CartController extends Controller
             session()->flash('message', 'Product added to cart!');
         }
     
-        $quoteItems = QuoteItem::where('quote_id', $quote->id)->get();
+       
+        $quoteItems = QuoteItem::where('quote_id', $userQuote->id)->get();
         $subtotal = $quoteItems->sum('row_total');
-        $total = $subtotal - ($quote->coupon_discount ?? 0);
+        $total = $subtotal - ($userQuote->coupon_discount ?? 0);
     
-        $quote->update([
+        $userQuote->update([
             'subtotal' => $subtotal,
             'total' => $total,
         ]);
     
         return redirect()->back();
     }
+    
+    
     
     
     
